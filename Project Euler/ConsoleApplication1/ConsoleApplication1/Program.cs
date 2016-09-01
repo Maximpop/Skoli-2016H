@@ -27,12 +27,17 @@ namespace ConsoleApplication1
         }
         static void Main(string[] args)
         {
+            List<Thread> tredz = new List<Thread>();
+
             Thread A = new Thread(writeA);
             Thread B = new Thread(writeB);
-            for (int i = 0; i < 1; i++)
+
+            tredz.Add(A);
+            tredz.Add(B);
+
+            for (int i = 0; i < 2; i++)
             {
-                A.Start();
-                B.Start();
+                tredz[i].Start();
             }
             Console.ReadLine();
         }

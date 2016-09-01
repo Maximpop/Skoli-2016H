@@ -37,7 +37,7 @@
             this.BallPanel.Name = "BallPanel";
             this.BallPanel.Size = new System.Drawing.Size(296, 277);
             this.BallPanel.TabIndex = 0;
-            this.BallPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.BallPanel_Paint);
+           // this.BallPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.BallPanel_Paint);
             this.BallPanel.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BallPanel_MouseClick);
             // 
             // Form1

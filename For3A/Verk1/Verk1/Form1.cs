@@ -28,7 +28,6 @@ namespace Verk1
         private int clickCount = 0;
         private List<Ball> balls = new List<Ball>();
         private List<Thread> running = new List<Thread>();
-        Graphics graphics = BallPanel.CreateGraphics();
         
 
         private void BallPanel_MouseClick(object sender, MouseEventArgs e)
@@ -40,66 +39,77 @@ namespace Verk1
                     case 0:
                         // generate a random color ball
                         Ball blueBall0 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        
+                        graphic(blueBall0);
+                        Graphics graphics = BallPanel.CreateGraphics();
+
+                        Thread ball0 = new Thread(blueBall0.Run);
+                        ball0.Start();
                         break;
                     case 1:
                         // generate a random color ball
                         Ball blueBall1 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall1);
                         break;
                     case 2:
                         // generate a random color ball
                         Ball blueBall2 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall2);
                         break;
                     case 3:
                         // generate a random color ball
                         Ball blueBall3 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall3);
                         break;
                     case 4:
                         // generate a random color ball
                         Ball blueBall4 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall4);
                         break;
                     case 5:
                         // generate a random color ball
                         Ball blueBall5 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall5);
                         break;
                     case 6:
                         // generate a random color ball
                         Ball blueBall6 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall6);
                         break;
                     case 7:
                         // generate a random color ball
                         Ball blueBall7 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall7);
                         break;
                     case 8:
                         // generate a random color ball
                         Ball blueBall8 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall8);
                         break;
                     case 9:
                         // generate a random color ball
                         Ball blueBall9 = new Ball(e.X, e.Y, 10, Color.FromKnownColor(randomColorName),
-                            rand.Next(1, 11), rand.Next(1, 11),
-                            BallPanel.Size.Width, BallPanel.Size.Height);
-
-                        graphics.FillEllipse(new SolidBrush(blueBall9.Color),
-                        blueBall9.X - blueBall9.Radius, blueBall9.Y - blueBall9.Radius,
-                        blueBall9.Radius * 2, blueBall9.Radius * 2);
+                        rand.Next(1, 11), rand.Next(1, 11),
+                        BallPanel.Size.Width, BallPanel.Size.Height);
+                        graphic(blueBall9);
                         break;
 
                     default:
@@ -108,7 +118,7 @@ namespace Verk1
             }
         }
 
-        private Graphics graphic(object sender, PaintEventArgs e, Ball blueBall)
+        private void graphic(Ball blueBall)
         {
             Graphics graphics = BallPanel.CreateGraphics();
 
@@ -116,9 +126,6 @@ namespace Verk1
             graphics.FillEllipse(new SolidBrush(blueBall.Color),
             blueBall.X - blueBall.Radius, blueBall.Y - blueBall.Radius,
             blueBall.Radius * 2, blueBall.Radius * 2);
-
-
-            return graphics;
         }
 
         // delegate to call BallPanel.Refresh() through Invoke()
