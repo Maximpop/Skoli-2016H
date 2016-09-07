@@ -21,11 +21,11 @@ end $$
 --    einhverjar fleiri.
 
 drop function if exists AvailableSeats $$
-create function AvailableSeats(flight_id int(11), airchraft_id char(6))
+create function AvailableSeats(flight_id int(11), aircraft_id char(6))
 returns int(6)
 begin
 def maxpass,
-maxpass = (SELECT maxNumberOfPassangers)
+SELECT maxNumberOfPassangers INTO maxpass FROM aircrafts WHERE aircraftID = aircraft_id
 RETURN(maxpass-(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = flight_id));
 end $$
 
@@ -54,23 +54,33 @@ end $$
 --     Við gætum ímyndað okkur að starfsmaður FreshAir væri að setja upp flug frá
 --	   Keflavík(KEF) til Boston(BOS) og slær óvart inn dagsetninu flugsins á degi
 --     sem þegar er liðinn.  Triggerinn á að stoppa þetta.
-drop trigger if exists Animals;
+drop trigger if exists flightDateTrigger;
 
-create trigger Animals
-	after insert on Animals
-	for each row
-		update AnimalCount set AnimalCount.numberOfAnimalInserts = AnimalCount.numberOfAnimalInserts +1;
+create trigger flightDateTrigger
+	after insert on flights
+	SELECT CASE 
+		WHEN flightDate < GETDATE()
+			then rollback transaction
+			else pass
 
 -- 6:  Stoppa bókun ef ef reynt er að bóka ferð sem þegar hefur verið farin. 
 --     Hér er svipað uppi á teningnum og í 5.  Aðalmálið er að finna hvaða töflu
 --     þarf að setja triggerinn á og fyrir hvaða skipun(insert, update, delete)
 
-drop trigger if exists Animals;
+drop trigger if exists alreadyDeparted;
 
-create trigger Animals
-	after insert on Animals
-	for each row
-		update AnimalCount set AnimalCount.numberOfAnimalInserts = AnimalCount.numberOfAnimalInserts +1;
+create trigger alreadyDeparted
+	after insert on bookedflights
+	define departure;
+	SELECT CONVERT(DATETIME, CONVERT(CHAR(8), flights.flightDate, 112)+ ' ' + CONVERT(CHAR(8), flights.flighTime, 108)) INTO departure
+	FROM bookedflights
+	INNER JOIN flights ON bookedflights.flightCode = flights.flightCode
+	WHERE flightCode = new.bookingnumber
+	SELECT CASE 
+		WHERE departure < GETDATE()
+		THEN ROLLBACK TRANSACTION
+		else pass
+
 
 -- 7:  Stoppa bókun ef vélin er full.  Spurning um að nota lausnina úr númer 2 til
 --	   að aðstoða í þessum trigger.
