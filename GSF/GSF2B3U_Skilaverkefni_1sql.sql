@@ -12,7 +12,7 @@ drop function if exists NumberOfSeats $$
 create function NumberOfSeats(aircraft_ID char(6))
 returns int(11)
 begin
-RETURN(SELECT COUNT(seat_ID) FROM aircraftseats WHERE aircraftID = aircraft_ID);
+RETURN(SELECT COUNT(seatID) FROM aircraftseats WHERE aircraftID = aircraft_ID);
 end $$
 
 -- 2: Skrifið function sem skilar fjölda lausra sæta í ákveðnu flugi.
@@ -24,9 +24,7 @@ drop function if exists AvailableSeats $$
 create function AvailableSeats(flight_id int(11), aircraft_id char(6))
 returns int(6)
 begin
-def maxpass,
-SELECT maxNumberOfPassangers INTO maxpass FROM aircrafts WHERE aircraftID = aircraft_id
-RETURN(maxpass-(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = flight_id));
+RETURN(SELECT maxNumberOfPassangers FROM aircrafts WHERE aircraftID = aircraft_id) -(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = flight_id);
 end $$
 
 -- 3: Skrifið function sem skilar fjölda "frátekinna" sæta í ákveðnu flugi.
@@ -54,43 +52,55 @@ end $$
 --     Við gætum ímyndað okkur að starfsmaður FreshAir væri að setja upp flug frá
 --	   Keflavík(KEF) til Boston(BOS) og slær óvart inn dagsetninu flugsins á degi
 --     sem þegar er liðinn.  Triggerinn á að stoppa þetta.
-drop trigger if exists flightDateTrigger;
+
+drop trigger if exists flightDateTrigger $$
 
 create trigger flightDateTrigger
-	after insert on flights
-	SELECT CASE 
-		WHEN flightDate < GETDATE()
-			then rollback transaction
-			else pass
+	before insert on flights
+	for each row
+	begin
+		declare msg varchar(255);
+		if(flightDate < GETDATE()) then
+			set msg = concat('This date has passed', cast(new.flightDate as char));
+			-- Villu er kastað og villuskilaboðin birt
+            signal sqlstate '45000' set message_text = msg;
+		end if;
+	end $$
 
 -- 6:  Stoppa bókun ef ef reynt er að bóka ferð sem þegar hefur verið farin. 
 --     Hér er svipað uppi á teningnum og í 5.  Aðalmálið er að finna hvaða töflu
 --     þarf að setja triggerinn á og fyrir hvaða skipun(insert, update, delete)
 
-drop trigger if exists alreadyDeparted;
+drop trigger if exists alreadyDeparted $$
 
 create trigger alreadyDeparted
-	after insert on bookedflights
-	define departure;
-	SELECT CONVERT(DATETIME, CONVERT(CHAR(8), flights.flightDate, 112)+ ' ' + CONVERT(CHAR(8), flights.flighTime, 108)) INTO departure
-	FROM bookedflights
-	INNER JOIN flights ON bookedflights.flightCode = flights.flightCode
-	WHERE flightCode = new.bookingnumber
-	SELECT CASE 
-		WHERE departure < GETDATE()
-		THEN ROLLBACK TRANSACTION
-		else pass
-
+	before insert on bookedflights
+	for each row
+	begin
+		declare msg varchar (255);
+		if(flights.flightDate > GETDATE()) then
+			set msg = concat("This flight has left", cast(flights.flightCode as char));
+			signal sqlstate '45000' set message_text = msg;
+     	end if;
+end $$
 
 -- 7:  Stoppa bókun ef vélin er full.  Spurning um að nota lausnina úr númer 2 til
 --	   að aðstoða í þessum trigger.
+/*
+drop trigger if exists thisIsHowToSurviveAFloodNoah $$
 
-drop trigger if exists Animals;
-
-create trigger Animals
-	after insert on Animals
+create trigger thisIsHowToSurviveAFloodNoah
+	before insert on passengers
 	for each row
-		update AnimalCount set AnimalCount.numberOfAnimalInserts = AnimalCount.numberOfAnimalInserts +1;
+	begin
+		declare msg varchar(255);
+		if(SELECT maxNumberOfPassangers FROM aircrafts WHERE aircraftID = flights.aircraftID) -(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = new.bookedFlightID == 0) then
+		INNER JOIN bookedflights ON passengers.bookedFlightID = bookedflights.bookedflightsID,
+		INNER JOIN flighs ON bookedflights.flightCode = flights.flightCode,
+		set msg = concat("This flight is full", cast(flights.flightNumber))
+	end if;
+end $$
+*/
 
 -- 8: Logga í töfluna FreshAirLogs þegar insert eða update er keyrt á töfluna FlightSchedule. 
 --    Hér þarf að smíða töfluna FreshAirLogs. Ef um er að ræða nýtt flightNumber þá er loggað: 
@@ -98,27 +108,24 @@ create trigger Animals
 --    Ef flightNumber er til í töflunni fyrir þá er loggað: 
 --    "Flugáætlun uppfærð", dagsetning,flugnúmer
 
-drop trigger if exists Animals;
+drop trigger if exists NSADreamTable_ins $$
 
-create trigger Animals
-	after insert on Animals
-	for each row
-		update AnimalCount set AnimalCount.numberOfAnimalInserts = AnimalCount.numberOfAnimalInserts +1;
+create trigger NSADreamTable_ins  
+	after insert on flightschedules
+		for each row
+		begin
+		INSERT INTO FreshAirLogs(type, day, flightNumber)VALUES("insert", NOW(), new.flightNumber);
+end $$
+
+drop trigger if exists NSADreamTable_up $$
+
+create trigger NSADreamTable_up
+	after insert on flightschedules
+		for each row
+		begin
+		INSERT INTO FreshAirLogs(type, day, flightNumber)VALUES("update", NOW(), new.flightNumber);
+end $$
 
 -- ATH: 5 til og með 8 eru triggerar!
 -- ATH: Þegar verið er að vinna með ákveðið flug þá er ekki verið að nota flightCode,
 --      heldur flightNumber og flightDate.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
