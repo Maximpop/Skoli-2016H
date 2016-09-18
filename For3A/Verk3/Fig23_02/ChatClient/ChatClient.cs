@@ -1,4 +1,4 @@
-// Fig. 23.2: ChatClient.cs
+ // Fig. 23.2: ChatClient.cs
 // Set up a client that will send information to and
 // read information from a server.
 using System;
@@ -24,8 +24,8 @@ public partial class ChatClientForm : Form
    private void ChatClientForm_Load( object sender, EventArgs e )
    {
       readThread = new Thread( new ThreadStart( RunClient ) );
-      readThread.Start();                                     
-   } // end method ChatClientForm_Load
+      readThread.Start();
+    } // end method ChatClientForm_Load
 
    // close all threads associated with this application
    private void ChatClientForm_FormClosing( object sender,
@@ -51,7 +51,7 @@ public partial class ChatClientForm : Form
             new object[] { message } );                          
       } // end if
       else // OK to modify displayTextBox in current thread
-         displayTextBox.Text += message;
+         displayTextBox.Text = message;
    } // end method DisplayMessage
 
    // delegate that allows method DisableInput to be called 
@@ -69,7 +69,7 @@ public partial class ChatClientForm : Form
          // via a delegate                                     
          Invoke( new DisableInputDelegate( DisableInput ),     
             new object[] { value } );                          
-      } // end if
+      } // end if 
       else // OK to modify inputTextBox in current thread
          inputTextBox.ReadOnly = value;
    } // end method DisableInput
@@ -81,14 +81,14 @@ public partial class ChatClientForm : Form
       {         
          if ( e.KeyCode == Keys.Enter && inputTextBox.ReadOnly == false )
          {
-            writer.Write( "CLIENT>>> " + inputTextBox.Text );
-            displayTextBox.Text += "\r\nCLIENT>>> " + inputTextBox.Text;
-            inputTextBox.Clear();            
-         } // end if
+                writer.Write(inputTextBox.Text);
+                inputTextBox.Text = null;
+                displayTextBox.ReadOnly = false;
+            } // end if
       } // end try
       catch ( SocketException )
       {
-         displayTextBox.Text += "\nError writing object";
+         MessageBox.Show("Error writing object");
       } // end catch
    } // end method inputTextBox_KeyDown
 
@@ -104,7 +104,7 @@ public partial class ChatClientForm : Form
 
          // Step 1: create TcpClient and connect to server
          client = new TcpClient();                        
-         client.Connect( "10.220.238.67", 40000 );             
+         client.Connect( "127.0.0.1", 40000 );             
 
          // Step 2: get NetworkStream associated with TcpClient
          output = client.GetStream();                          
@@ -149,6 +149,12 @@ public partial class ChatClientForm : Form
          System.Environment.Exit( System.Environment.ExitCode );
       } // end catch
    } // end method RunClient
+
+    private void bt_textUpdate_Click(object sender, EventArgs e)
+    {
+        writer.Write(displayTextBox.Text);
+        MessageBox.Show("The file has been updated");
+    }
 } // end class ChatClientForm
 
 /**************************************************************************

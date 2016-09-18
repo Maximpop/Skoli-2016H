@@ -21,10 +21,12 @@ end $$
 --    einhverjar fleiri.
 
 drop function if exists AvailableSeats $$
-create function AvailableSeats(flight_id int(11), aircraft_id char(6))
+create function AvailableSeats(bookedFlight_id int(11), aircraft_id char(6))
 returns int(6)
 begin
-RETURN(SELECT maxNumberOfPassangers FROM aircrafts WHERE aircraftID = aircraft_id) -(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = flight_id);
+RETURN(
+	SELECT maxNumberOfPassangers FROM aircrafts WHERE aircraftID = aircraft_id) -
+	(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = bookedFlight_id);
 end $$
 
 -- 3: Skrifið function sem skilar fjölda "frátekinna" sæta í ákveðnu flugi.
@@ -86,7 +88,7 @@ end $$
 
 -- 7:  Stoppa bókun ef vélin er full.  Spurning um að nota lausnina úr númer 2 til
 --	   að aðstoða í þessum trigger.
-/*
+
 drop trigger if exists thisIsHowToSurviveAFloodNoah $$
 
 create trigger thisIsHowToSurviveAFloodNoah
@@ -94,13 +96,22 @@ create trigger thisIsHowToSurviveAFloodNoah
 	for each row
 	begin
 		declare msg varchar(255);
-		if(SELECT maxNumberOfPassangers FROM aircrafts WHERE aircraftID = flights.aircraftID) -(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = new.bookedFlightID == 0) then
-		INNER JOIN bookedflights ON passengers.bookedFlightID = bookedflights.bookedflightsID,
-		INNER JOIN flighs ON bookedflights.flightCode = flights.flightCode,
-		set msg = concat("This flight is full", cast(flights.flightNumber))
-	end if;
+		declare maxNumPass int(11);
+		declare numBooked int(11);
+		declare aircraft_id char(6);
+
+		SELECT aircraftID into aircraft_id FROM Flighs
+        INNER JOIN bookedflights ON passengers.bookedFlightID = bookedflights.bookedflightsID
+        WHERE flightCode =(SELECT flightCode FROM bookedflights WHERE bookedflights.bookedFlightID = new.bookedflightID);
+
+        SELECT maxNumberOfPassangers INTO maxNumPass  FROM Aircrafts WHERE aircraftID = aircraft_id;
+        SELECT COUNT(seatingID) INTO numBooked FROM Passengers WHERE bookedFlightID = new.bookedFlightID;
+
+        if(maxNumPass = numBooked) then
+                set msg = concat('This flight is fully flooded Noah...YOU DIG');
+        end if;
 end $$
-*/
+
 
 -- 8: Logga í töfluna FreshAirLogs þegar insert eða update er keyrt á töfluna FlightSchedule. 
 --    Hér þarf að smíða töfluna FreshAirLogs. Ef um er að ræða nýtt flightNumber þá er loggað: 

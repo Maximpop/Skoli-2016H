@@ -6,7 +6,8 @@ using System.Windows.Forms;
 using System.Threading;  
 using System.Net;        
 using System.Net.Sockets;
-using System.IO;         
+using System.IO;
+using System.Text;         
 
 public partial class ChatServerForm : Form
 {
@@ -85,10 +86,6 @@ public partial class ChatServerForm : Form
       {         
          if ( e.KeyCode == Keys.Enter && inputTextBox.ReadOnly == false )
          {
-                StreamReader reader = new StreamReader(inputTextBox.Text);
-                displayTextBox.Text = reader.ReadToEnd();
-
-                writer.Write(reader.ReadToEnd());
 
             // if the user at the server signaled termination
             // sever the connection to the client
@@ -100,12 +97,11 @@ public partial class ChatServerForm : Form
       } // end try
       catch ( SocketException )
       {
-         displayTextBox.Text += "\nError writing object";
+         MessageBox.Show("Error writing object");
       } // end catch
    } // end method inputTextBox_KeyDown
-
-   // allows a client to connect; displays text the client sends
-   public void RunServer()
+    // allows a client to connect; displays text the client sends
+    public void RunServer()
    {
       TcpListener listener;
       int counter = 1;
@@ -115,7 +111,7 @@ public partial class ChatServerForm : Form
       try
       {
          // Step 1: create TcpListener                    
-         IPAddress local = IPAddress.Parse( "192.168.1.225" );
+         IPAddress local = IPAddress.Parse( "127.0.0.1" );
          listener = new TcpListener( local, 40000 );       
 
          // Step 2: TcpListener waits for connection request
@@ -139,30 +135,34 @@ public partial class ChatServerForm : Form
                 MessageBox.Show( "Connection " + counter + " received.\r\n" );
 
             // inform client that connection was successfull  
-            writer.Write( "SERVER>>> Connection successful" );
+            MessageBox.Show( "SERVER>>> Connection successful" );
 
             DisableInput( false ); // enable inputTextBox
 
-            string theReply = "";
-
-            // Step 4: read string data sent from client
-            do
-            {
+            string fileName = "";
+                
                try
-               {   
-                  // read the string sent to the server
-                  theReply = reader.ReadString();
+               {
+                    // read the string sent to the server
+                    fileName = reader.ReadString();
 
-                        // display the message
-                        MessageBox.Show( "\r\n" + theReply );
+                    StreamReader fileFinder = new StreamReader(fileName);
+                    writer.Write(fileFinder.ReadToEnd());
+                    fileFinder.Close();
+
+                    StreamWriter fileWriter = new StreamWriter(fileName);
+
+                    fileWriter.Write(reader.ReadString());
+
+                    fileWriter.Close();
+                    Application.Exit();
+                        
                } // end try
                catch ( Exception )
                {
                   // handle exception if error reading data
                   break;
                } // end catch
-            } while ( theReply != "CLIENT>>> TERMINATE"  &&
-               connection.Connected );
 
                 MessageBox.Show( "\r\nUser terminated connection\r\n" );
 
@@ -175,7 +175,7 @@ public partial class ChatServerForm : Form
             DisableInput( true ); // disable InputTextBox
             counter++;
          } // end while
-      } // end try
+} // end try
       catch ( Exception error )
       {
          MessageBox.Show( error.ToString() );
