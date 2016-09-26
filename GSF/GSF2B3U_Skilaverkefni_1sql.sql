@@ -21,32 +21,32 @@ end $$
 --    einhverjar fleiri.
 
 drop function if exists AvailableSeats $$
-create function AvailableSeats(bookedFlight_id int(11), aircraft_id char(6))
+create function AvailableSeats(flight_code int(11), aircraft_id char(6))
 returns int(6)
 begin
 RETURN(
 	SELECT maxNumberOfPassangers FROM aircrafts WHERE aircraftID = aircraft_id) -
-	(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = bookedFlight_id);
+	(SELECT COUNT(bookedFlightID) FROM bookedflights WHERE flightCode = flight_code);
 end $$
 
 -- 3: Skrifið function sem skilar fjölda "frátekinna" sæta í ákveðnu flugi.
 --    Þetta fall er einhvers konar "andhverfa" fallsins í númer 2.
 
 drop function if exists TakenSeats $$
-create function TakenSeats(flight_id int(11))
+create function TakenSeats(flight_code int(11))
 returns int(6)
 begin
-RETURN(SELECT COUNT(seatingID) FROM passengers WHERE bookedFlightID = flight_id);
+RETURN(SELECT COUNT(bookedflightID) FROM bookedflights WHERE flightCode = flight_code);
 end $$
 
 -- 4: Skrifið function sem skilar einkennisnúmeri þeirrar flugvélar sem flýgur ákveðið flug.
 --    Í hefðbundnum flugrekstri myndi þessi function vera feikna mikilvæg.
 
 drop function if exists PlaneNum $$
-create function PlaneNum(flight_id int(11))
+create function PlaneNum(flight_num int(11))
 returns int(6)
 begin
-RETURN(SELECT aircraftID FROM flights WHERE flightNumber=flight_id);
+RETURN(SELECT aircraftID FROM flights WHERE flightNumber=flight_num);
 end $$
 
 -- 5:  Stoppa skráningu á flugdögum(flightDates) í töfluna Flights ef 
@@ -80,7 +80,7 @@ create trigger alreadyDeparted
 	for each row
 	begin
 		declare msg varchar (255);
-		if(flights.flightDate > GETDATE()) then
+		if(SELECT flights.flightDate FROM flights WHERE flights.flightCode = new.flightCode > GETDATE()) then
 			set msg = concat("This flight has left", cast(flights.flightCode as char));
 			signal sqlstate '45000' set message_text = msg;
      	end if;
@@ -100,12 +100,12 @@ create trigger thisIsHowToSurviveAFloodNoah
 		declare numBooked int(11);
 		declare aircraft_id char(6);
 
-		SELECT aircraftID into aircraft_id FROM Flighs
-        INNER JOIN bookedflights ON passengers.bookedFlightID = bookedflights.bookedflightsID
+		SELECT aircraftID into aircraft_id FROM flighs
+        INNER JOIN bookedflights ON flights.flightCode = bookedflights.flightCode
         WHERE flightCode =(SELECT flightCode FROM bookedflights WHERE bookedflights.bookedFlightID = new.bookedflightID);
 
-        SELECT maxNumberOfPassangers INTO maxNumPass  FROM Aircrafts WHERE aircraftID = aircraft_id;
-        SELECT COUNT(seatingID) INTO numBooked FROM Passengers WHERE bookedFlightID = new.bookedFlightID;
+        SELECT maxNumberOfPassangers INTO maxNumPass  FROM aircrafts WHERE aircraftID = aircraft_id;
+        SELECT COUNT(seatingID) INTO numBooked FROM passengers WHERE bookedFlightID = new.bookedFlightID;
 
         if(maxNumPass = numBooked) then
                 set msg = concat('This flight is fully flooded Noah...YOU DIG');

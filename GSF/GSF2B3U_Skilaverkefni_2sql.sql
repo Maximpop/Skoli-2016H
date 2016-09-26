@@ -47,7 +47,7 @@ AND seatID NOT IN (SELECT seatingID FROM passengers WHERE bookedFlightID = booke
 END $$
 
 
---4
+--4 sl
 --find all the unbooked seats. 
 --if a mid seat is booked the row is out
 --if two in a row are loose but the seat placement is the same. Those 2 are out
@@ -136,3 +136,44 @@ begin
     
     select first_seat,second_seat;
 end $$
+
+--5
+DROP PROCEDURE IF EXISTS passengerList;
+CREATE PROCEDURE passengerList(flightNum char(5), flightD DATE)
+BEGIN
+	
+	DECLARE output as CURSOR FOR 
+	SELECT personID FROM passengers;
+
+	DECLARE destination char(3);
+	DECLARE origin char(3);
+	DECLARE flightC int(11);
+	DECLARE planeType varchar(35);
+	DECLARE input varchar(255);
+
+
+	SELECT flightCode INTO flightC FROM flights WHERE flightNumber = flightNum AND flightDate = flightD;
+	
+	SELECT originatingAirport INTO origin FROM flightschedules
+	WHERE flightNumber = flightNum;
+
+	SELECT destinationAirport INTO destination FROM flightschedules
+	WHERE flightNumber = flightNum;
+
+
+	input = CONCAT(flightNum + "_" + orgin+"-"*destination+"_"+flightD);
+
+	open output;
+	read_loop : loop
+	--small spliter ; til að setja á milli staka í hverri línu
+	--big splitter : til að þekkja í sundur línurnar
+
+	fetch output into input;
+
+DECLATE writer CURSOR
+FOR
+SELECT personName FROM passengers WHERE bookedFlightID IN(SELECT bookedFlightID FROM bookedflights WHERE flightCode = flightC);
+
+DECLARE wrier CURSOR
+FOR
+SELECT 
