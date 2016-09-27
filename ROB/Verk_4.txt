@@ -1,0 +1,5 @@
+á meðan það er kveikt ljós
+	ef það er ekkert fyrir framan
+		keyra áfram
+	annars
+		begja til vinstri um 20°
