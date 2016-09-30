@@ -37,9 +37,6 @@ IN (SELECT seatID FROM passengers WHERE bookedFlightID
 AND seatPlacement = "w";
 END $$
 
-
-delimiter $$
-
 /*5*/
 DROP PROCEDURE IF EXISTS passengerList $$
 CREATE PROCEDURE passengerList(flightNum char(5), flightD DATE)
@@ -57,15 +54,14 @@ BEGIN
 
 	DECLARE done int default false;
 
-
-set file_body = CONCAT(flightNum , "_" , (SELECT originatingAirport FROM flightschedules WHERE flightNumber = flightNum) , "-" , (SELECT destinationAirport FROM flightschedules WHERE flightNumber = flightNum) , "_" , flightD);
-
-DECLARE writer CURSOR 
-FOR SELECT passengers.personID, passengers.personName, concat(aircraftseats.rowNumber, aircraftseats.seatNumber), aircraftseats.seatPlacement FROM passengers INNER JOIN aircraftseats ON passengers.seatID = aircraftseats.seatID WHERE bookedFlightID IN(SELECT bookedFlightID FROM bookedflights WHERE flightCode = flightC);
+	DECLARE writer CURSOR 
+	FOR SELECT passengers.personID, passengers.personName, concat(aircraftseats.rowNumber, aircraftseats.seatNumber), aircraftseats.seatPlacement FROM passengers INNER JOIN aircraftseats ON passengers.seatID = aircraftseats.seatID WHERE bookedFlightID IN(SELECT bookedFlightID FROM bookedflights WHERE flightCode = flightC);
 
 declare continue handler for not found set done = true;
 
 OPEN writer;
+
+set file_body = CONCAT(flightNum , "_" , (SELECT originatingAirport FROM flightschedules WHERE flightNumber = flightNum) , "-" , (SELECT destinationAirport FROM flightschedules WHERE flightNumber = flightNum) , "_" , flightD);
 
 read_loop: loop
 	fetch writer into passengerID, passenger_name, passenger_seat, seat_placement;
@@ -74,9 +70,15 @@ read_loop: loop
 		leave writer;
 	end if;
 
+	
 	set file_body = concat(passengerID,";",passenger_name,";",passenger_seat,";",seat_placement,";");
 end loop;
 
 set file_body = concat("Carrier: "(SELECT aircraftType FROM aircrafts WHERE aircraftID = (SELECT aircraftID FROM flights WHERE flightNumber = flightNum)));
 set file_body = concat("List compiled",NOW())
+
+CLOSE writer;
+
+SELECT file_body;
+
 END $$
