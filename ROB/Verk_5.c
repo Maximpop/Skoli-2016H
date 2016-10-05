@@ -74,20 +74,55 @@ void rotate(float gradurInn){
   bothMotors(0);
 }
 
+
+bool between(int low, int num, int high){
+	if(low < num && num < high){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 //1035 = heill hringur
 //1650 = 1m afram
 
 task main()
 {
 	while(true){
-		while(SensorValue[Ambient] > 130){//lights on
-			if(SensorValue[SonarIn] > 40  || SensorValue[SonarIn] == -1){//front is clear. If there is nothing in 20cm or nothing in the visible range
-				bothMotors(30);
+		/*int num1 = SensorValue[Line1];//haegri
+		int num2 = SensorValue[Line2];
+		int num3 = SensorValue[Line3];//vinstri
+		//2950 ish = lina
+		//2800-2900 = ekki lina
+		*/
+		while(between(2930, SensorValue[Line2], 2970)){
+			bothMotors(40);//mean tad er svart undir midjunni
+		}
+		if(between(2930, SensorValue[Line1], 2970)){
+			//ef tad er lina hagra meginn
+			while(SensorValue[Line2] != 2950){
+				motor[leftMotor] = 30;
+				motor[rightMotor] = 0;
 			}
-			else{
-				bothMotors(0);
-				rotate(-45);
+			bothMotors(-10);
+			Sleep(20);
+			bothMotors(0);
+		}
+		else if(SensorValue[Line2] != 2950){
+			//ef tad er lina vinstra megin
+			while(between(2930, SensorValue[Line2], 2970) == false){
+				motor[leftMotor] = 0;
+				motor[rightMotor] = 30;
 			}
+			bothMotors(-10);
+			Sleep(20);
+			bothMotors(0);
+		}
+		else{
+			//a aldrei ad koma hingad fml
+			//bakka?
+			bothMotors(-10);
+			//lat hann bakka her sem debug feature
 		}
 	}
 }

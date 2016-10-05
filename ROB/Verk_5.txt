@@ -1,0 +1,12 @@
+Meðan allir skinjarar eru með gildi milli 2930 og 2980 keyra beint áfram
+	Ef einhver skynjari fer undir það stoppar vélmennið
+		Ef það er vinstri skynjarinn snýr hann sér til vinstri þar til skynjarinn er kominn yfir lámarkið
+		Ef það er hægri skynjarinn snýr hann sér til hægri þar til skynjarinn er kominn yfir lámarkið
+		ef það gerist ekkert á 180 gráðum snýr hann sér til baka 90 gráður keyrir áfram 10cm og reynir aftur
+
+//boltinn
+//vélmennið skannar völlinn.
+//Gert er ráð fyrir að boltinn er innan við 40cm frá vélmenninu og ekkert annað innan 40 cm
+	byrjar á því að snúa sér 2 gráður í senn meðan það er ekkert sem hann er að greina
+	Þegar hann finnur einhvað fer klóin niður og opnast
+	Vélmennið keyrir áfram 50cm og lokar svo klónni og lyftir henni upp
