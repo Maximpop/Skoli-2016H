@@ -1,46 +1,44 @@
-import random
+import pygame
 
-# name	: Dice.
-# system: FOR3G3U - demo for game programming. 
-# role	: Embeds the functionality of a single dice.
-# desc	: The class contains one member variable and a single function, throw()
-# author: Sigurdur R. Ragnarsson
-# date	: 11.09.2016
-class Dice:
-    def __init__(self):
-        self.number = 0
-	# the throw function assumes a six-sided dice 
-	# containing numbers(dots) from 1 to and including 6
-    def throw(self):
-        self.number = random.randint(1,6)
-        return self.number
+# constants
+LEFT_BUTTON = 1
+WINDOW_SIZE = (640, 480)
+BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
 
-# name	: DiceThrower.
-# system: FOR3G3U - demo for game programming. 
-# role	: Contains a list of dice.
-# desc	: The class can throw an arbitrary number of dice
-#         and rethrow them.
-# author: Sigurdur R. Ragnarsson
-# date	: 11.09.2016
-class DiceThrower:
-    def __init__(self, how_many=5):	# default number of dice is 5
-        self.number_of_dice = how_many
-        self.dice = Dice()
-        self.dice_list = [-1 for i in range(self.number_of_dice)]
+running = True
 
-	# throws all the dice contained within dice_list
-    def throw(self):
-        for x in range(0, self.number_of_dice):
-            self.dice_list[x] = self.dice.throw()
-        return self.dice_list
+window = pygame.display.set_mode(WINDOW_SIZE)
+window.fill(BLACK)
 
-	# rethrows the dice contained in the rethrow_list
-    def rethrow(self, rethrow_list=[]):
-        if 0 < len(rethrow_list) <= self.number_of_dice:
-            if min(rethrow_list) >= 0 and max(rethrow_list) <= self.number_of_dice - 1:
-                for item in rethrow_list:
-                    self.dice_list[item] = self.dice.throw()
-            return self.dice_list
-        else:
-            return self.throw()
-			
+# To show more than one rectangle and have the mouse interact
+# with all of them, we best put them into a list and iterate
+# through them to have them drawn on the screen.
+rect_list = []
+
+rect_list.append(pygame.Rect(30, 30, 100, 100))
+rect_list.append(pygame.Rect(160, 30, 100, 100))
+rect_list.append(pygame.Rect(290, 30, 100, 100))
+rect_list.append(pygame.Rect(420, 30, 100, 100))
+
+# now we need to paint the box on the screen and give it some (initial) color
+# in the process(here: red)
+for box in rect_list:
+    pygame.draw.rect(window, RED, box)
+
+while running:
+    event = pygame.event.poll()
+    if event.type == pygame.QUIT:
+        running = False
+    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT_BUTTON:
+        # Now each time the user clicks on the left mouse button the program
+        # runs through the list of rects and for each rect runs the collidepoint()
+        # function. If so happens that the mouse is within one of them it is instantly
+        # painted blue. The chosen colors for the rects is by no means a political statement :-)
+        for box in rect_list:
+            if box.collidepoint(event.pos):
+                pygame.draw.rect(window, BLUE, box)
+
+    pygame.display.flip()
+
