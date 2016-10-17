@@ -5,8 +5,7 @@
 #pragma config(Sensor, in7,    Ambient,        sensorReflection)
 #pragma config(Sensor, dgtl1,  leftEncoder,    sensorQuadEncoder)
 #pragma config(Sensor, dgtl3,  rightEncoder,   sensorQuadEncoder)
-#pragma config(Sensor, dgtl6,  Bump,           sensorTouch)
-#pragma config(Sensor, dgtl7,  ClawLimit,      sensorTouch)
+#pragma config(Sensor, dgtl6,  clawLimit,      sensorTouch)
 #pragma config(Sensor, dgtl11, SonarIn,        sensorSONAR_cm)
 #pragma config(Motor,  port2,           rightMotor,    tmotorServoContinuousRotation, openLoop, reversed)
 #pragma config(Motor,  port3,           leftMotor,     tmotorServoContinuousRotation, openLoop)
@@ -74,6 +73,14 @@ void rotate(float gradurInn){
   bothMotors(0);
 }
 
+bool ball(){
+	if(SensorValue[SonarIn] != -1){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 
 bool between(int low, int num, int high){
 	if(low < num && num < high){
@@ -86,43 +93,42 @@ bool between(int low, int num, int high){
 //1035 = heill hringur
 //1650 = 1m afram
 
+void lineForward(){
+	drive(0.05);
+}
 task main()
 {
 	while(true){
-		/*int num1 = SensorValue[Line1];//haegri
-		int num2 = SensorValue[Line2];
-		int num3 = SensorValue[Line3];//vinstri
-		//2950 ish = lina
-		//2800-2900 = ekki lina
-		*/
-		while(between(2930, SensorValue[Line2], 2970)){
-			bothMotors(40);//mean tad er svart undir midjunni
-		}
-		if(between(2930, SensorValue[Line1], 2970)){
-			//ef tad er lina hagra meginn
-			while(SensorValue[Line2] != 2950){
-				motor[leftMotor] = 30;
-				motor[rightMotor] = 0;
+		while(ball()==false){
+			lineForward();
+
+			if(between(2930, SensorValue[Line2], 2970)){
+				//pass
 			}
-			bothMotors(-10);
-			Sleep(20);
-			bothMotors(0);
-		}
-		else if(SensorValue[Line2] != 2950){
-			//ef tad er lina vinstra megin
-			while(between(2930, SensorValue[Line2], 2970) == false){
-				motor[leftMotor] = 0;
-				motor[rightMotor] = 30;
-			}
-			bothMotors(-10);
-			Sleep(20);
-			bothMotors(0);
-		}
-		else{
-			//a aldrei ad koma hingad fml
-			//bakka?
-			bothMotors(-10);
-			//lat hann bakka her sem debug feature
-		}
-	}
-}
+			else{
+				if(between(2930, SensorValue[Line1], 2970)){
+					while(between(2930, SensorValue[Line2], 2970) == false){
+						rotate(1);
+					}
+				}
+				else if(between(2930, SensorValue[Line3], 2970)){
+					while(between(2930, SensorValue[Line2], 2970) == false){
+						rotate(-1);
+					}//close while
+				}//close else if
+			}//close else
+		}//close while
+		while(ball()){
+			//open claw
+			motor[clawMotor] = 50;
+			//claw down
+			while(SensorValue[clawLimit] == 0){
+				motor[armMotor]=-20;
+			}//close while
+			motor[clawMotor] = -50;
+			//close claw
+			motor[armMotor] = 20;
+			//claw up
+		}//close while
+	}//close while
+}//close main
