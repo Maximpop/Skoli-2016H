@@ -40,5 +40,5 @@ while running:
             if box.collidepoint(event.pos):
                 pygame.draw.rect(window, BLUE, box)
 
-    pygame.display.flip()
+    pygame.display.update()
 

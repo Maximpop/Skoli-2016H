@@ -7,6 +7,8 @@ height = 500
 
 white = (255,255,255)
 black = (0,0,0)
+blue = (0,0,255)
+red = (255,0,0)
 
 dice1 = pygame.image.load("Teningar/sd1.png")
 dice2 = pygame.image.load("Teningar/sd2.png")
@@ -29,8 +31,13 @@ for x in xrange(0,5):
 	comp_dice.append(random.randint(1,6))
 	user_dice.append(random.randint(1,6))
 
-running = True
 
+
+
+
+
+
+running = True
 while running:
 	x = 10
 	y = 10
@@ -55,10 +62,9 @@ while running:
 #Gera 2 takka
 #kasta osynilega aftur
 #kasta ollum aftur
-
-	pygame.draw.rect(window)	
-
-
+	pygame.draw.rect(screen, blue, (75, 250, 150, 50))
+	pygame.draw
+	
 
 	pygame.display.update()
 
