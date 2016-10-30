@@ -14,7 +14,7 @@ namespace ConsoleATMServer
     {
         private Socket connection; // Socket for accepting a connection
         private int counter = 0; // count the number of clients connected
-        private string magicPIN = "5678";
+        private int magicPIN = 5678;
         private int port = 8190;
         
         static void Main(string[] args)
@@ -74,18 +74,19 @@ namespace ConsoleATMServer
                 reader = new BinaryReader(socketStream);
                 writer = new BinaryWriter(socketStream);
                 writer.Write("Connection successful.\n");
-                string message = null;
+                int message = 0;
 
                 bool okay = false;
                 for (int tries = 0; tries < 3 && !okay; tries++)
                 {
                     writer.Write("Please type in your PIN number or type CANCEL");
-                    message = reader.ReadString();
-                    Console.WriteLine("Client " + count + ":" + message);
+                    message = reader.ReadInt32();
+                    Console.WriteLine("Client " + count + ":" + message.ToString());
+        
                     okay = true;
                     switch (message)
                     {
-                        case "CANCEL":
+                        case 0000:
                             writer.Write("Transaction halted. Goodbye.");
                             break;
                         default:
