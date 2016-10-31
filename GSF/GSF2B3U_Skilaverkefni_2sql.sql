@@ -54,25 +54,14 @@ BEGIN
 
 	DECLARE done int default false;
 
-<<<<<<< HEAD
 	DECLARE writer CURSOR FOR SELECT passengers.personID, passengers.personName, concat(aircraftseats.rowNumber, aircraftseats.seatNumber), aircraftseats.seatPlacement FROM passengers INNER JOIN aircraftseats ON passengers.seatID = aircraftseats.seatID WHERE bookedFlightID IN(SELECT bookedFlightID FROM bookedflights WHERE flightCode = flightC);
 
 	declare continue handler for not found set done = true;
-=======
-	DECLARE writer CURSOR 
-	FOR SELECT passengers.personID, passengers.personName, concat(aircraftseats.rowNumber, aircraftseats.seatNumber), aircraftseats.seatPlacement FROM passengers INNER JOIN aircraftseats ON passengers.seatID = aircraftseats.seatID WHERE bookedFlightID IN(SELECT bookedFlightID FROM bookedflights WHERE flightCode = flightC);
->>>>>>> origin/master
 
 	set file_body = CONCAT(flightNum , "_" , (SELECT originatingAirport FROM flightschedules WHERE flightNumber = flightNum) , "-" , (SELECT destinationAirport FROM flightschedules WHERE flightNumber = flightNum) , "_" , flightD);
 	set file_body = CONCAT("Carrier: ", (SELECT aircraftType FROM aircrafts WHERE aircraftID = (SELECT aircraftID FROM flights WHERE flightNumber = flightNum)));
 
 OPEN writer;
-<<<<<<< HEAD
-=======
-
-set file_body = CONCAT(flightNum , "_" , (SELECT originatingAirport FROM flightschedules WHERE flightNumber = flightNum) , "-" , (SELECT destinationAirport FROM flightschedules WHERE flightNumber = flightNum) , "_" , flightD);
-
->>>>>>> origin/master
 read_loop: loop
 
 	fetch writer into passengerID, passenger_name, passenger_seat, seat_placement;
@@ -81,23 +70,11 @@ read_loop: loop
 		leave read_loop;
 	end if;
 
-	
 	set file_body = concat(passengerID,";",passenger_name,";",passenger_seat,";",seat_placement,";");
 end loop;
 
-<<<<<<< HEAD
 set file_body = concat("List compiled",NOW());
 
 close writer;
 
 END
-=======
-set file_body = concat("Carrier: "(SELECT aircraftType FROM aircrafts WHERE aircraftID = (SELECT aircraftID FROM flights WHERE flightNumber = flightNum)));
-set file_body = concat("List compiled",NOW())
-
-CLOSE writer;
-
-SELECT file_body;
-
-END $$
->>>>>>> origin/master
