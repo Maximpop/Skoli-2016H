@@ -1,35 +1,60 @@
-import mysql.connector
+"""import mysql.connector
+from mysql.connector import errorcode
 
-cnx = mysql.connector.connect(user='2410982069', password='Svoluhofdi2', host='tsuts.tskoli.is', database='2410982069_pygame')
-db = cnx.cursor()
+try:
+	cnx = mysql.connector.connect(user='2410982069', password='pass.123', host='tsuts.tskoli.is', database='2410982069_pygame')
+	db = cnx.cursor()
 
+except Exception, e:
+	print("error in connecting to the database")
 
 def newScorer(name, score):
-	query = ('call newWinner(%s,%s,)')	
-	result = db.execute(query, (name, str(score)))
+	query = ('CALL newWinner();')	
+	db.execute(query, (name, str(score)))
 
 def isTop(name, score):
-	query = ('SELECT topScorer()')
+	query = ('SELECT topScorer();')
 	top = db.execute(query)
+	print(query)
+	print(top)
 	if score > top:
 		newScorer(name, score)
-
-isTop('Palli', 15)
-
+#def getTop()
 
 
-#muna ad setja i lokinn
+isTop('Pall', 15)
+
+
+db.commit()
 db.close()
 cnx.close()
 
 
 
 """
-Hvada info viljum vid i db?
-name(sem notandi slar inn ef hann vinnur)
-stigin sem hann fekk
-datetime
 
-hvad meira?
+import mysql.connector
+from mysql.connector import errorcode
 
-"""
+
+global cnx
+try:
+	cnx = mysql.connector.connect(user='2410982069', password='pass.123', host="tsuts.tskoli.is", database='2410982069_pygame')
+	print('success')
+except Exception, e:
+	if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+		print("Something is wrong with your user name or password")
+	elif err.errno == errorcode.ER_BAD_DB_ERROR:
+		print("Database does not exist")
+	else:
+		print(err)
+else:
+	cnx.close()
+
+
+cursor = cnx.cursor()
+
+query = 'call newWinner("Pall", 500);'
+cursor.execute(query)
+cursor.close()
+cnx.close()

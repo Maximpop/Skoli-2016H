@@ -10,7 +10,7 @@ import pygame
 class Player(object):
 
     def __init__(self):
-        self.rect = pygame.Rect(32, 32, 16, 16)
+        self.rect = pygame.Rect(32, 32, 20,20)
 
     def move(self, dx, dy):
         # Move each axis separately. Note that this checks for collisions both times.
@@ -39,45 +39,50 @@ class Player(object):
 class Brick(object):
 
     def __init__(self, pos):
-        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
-
-# A class to hold the magic rectangle
-class MagicBox(object):
-
-    def __init__(self,pos):
-        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+        self.rect = pygame.Rect(pos[0], pos[1], 20,20)
 
 # Initialize
 pygame.init()
 
 # Set up the display
-pygame.display.set_caption("Get to the red square!")
-screen = pygame.display.set_mode((320, 240))
+pygame.display.set_caption("Maze")
+screen = pygame.display.set_mode((640, 480))
 
 clock = pygame.time.Clock()
 bricks = list()     # List to hold the walls
+points = list()     # List of points
+mines = list()      # List of mines
 player = Player()   # Create the player
 
 # Holds the level layout in a list of strings.
 maze = [
-"WWWWWWWWWWWWWWWWWWWW",
-"W                  W",
-"W         WWWWWW   W",
-"W   WWWW       W   W",
-"W   W        WWWW  W",
-"W WWW  WWWW     M  W",
-"W   W     W W      W",
-"W   W     W   WWW WW",
-"W   WWW WWW   W W  W",
-"W     W   W   W W  W",
-"WWW   W   WWWWW W  W",
-"W W      WW        W",
-"W W   WWWW   WWW   W",
-"W     W    E   W   W",
-"WWWWWWWWWWWWWWWWWWWW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"W     E                        W",
+"W         WWWWWW  E            W",
+"W   WWWW       W               W",
+"W   W        WWWW      M       W",
+"W WWW  WWWW     M         E    W",
+"W   W     W W                  W",
+"W   W     W   WWW W            W",
+"W   WWW WWW M W W              W",
+"W     W   W   W W         E    W",
+"WWW   W   WWWWW W              W",
+"W W      WW                M   W",
+"W W   WWWW   WWW    M          W",
+"W     W    E   W               W",
+"W                              W",
+"W                              W",
+"W                    E         W",
+"W       E        M             W",
+"W                              W",
+"W                          M   W",
+"W                M             W",
+"W                              W",
+"W       E                     LW",
+"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 ]
 
-# Parse the maze string above. W = wall, E = exit, M = magic box
+# Parse the maze string above. W = wall, L = exit, M = mine E = point
 x = 0
 y = 0
 for row in maze:
@@ -85,11 +90,13 @@ for row in maze:
         if col == "W":
             bricks.append(Brick((x, y)))
         if col == "E":
-            end_rect = pygame.Rect(x, y, 16, 16)
+            points.append(pygame.Rect(x, y, 20, 20))
         if col == "M":
-            magic_rect = MagicBox((x,y))
-        x += 16
-    y += 16
+            mines.apppend(pygame.Rect(x, y, 20,20))
+        if col == "L":
+            magic_rect = pygame.Rect(x,y,20,20)
+        x += 20
+    y += 20
     x = 0
 
 running = True
